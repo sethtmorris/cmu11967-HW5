@@ -27,7 +27,7 @@ def html_to_text(html: str) -> str:
         str: Plain text extracted from HTML.
     """
     soup = BeautifulSoup(html, 'html.parser')
-    return soup
+    return soup.get_text()
 
 def replace_pii(text: str) -> str:
     """Masks personally identifiable information (PII) from text with the specified masking formats.
@@ -48,18 +48,20 @@ def clean_text(text: str) -> str:
     Returns:
         str: cleaned document
     """
+    #print(text)
 
     new_text = ""
-    for paragraph in text.splitlines():
-        # print(paragraph)
-        if not re.search(f"[{re.escape(string.punctuation)}]", paragraph): #r"\.|\?|!", paragraph):
-            pass
-        elif (len(paragraph) > 100) and (' ' not in paragraph):
-            pass
-        else:
-            if new_text != "":
-               new_text += '\n'
-            new_text += paragraph
+    if text is not None:
+        for paragraph in text.splitlines():
+            # print(paragraph)
+            if not re.search(f"[{re.escape(string.punctuation)}]", paragraph): #r"\.|\?|!", paragraph):
+                pass
+            elif (len(paragraph) > 100) and (' ' not in paragraph):
+                pass
+            else:
+                if new_text != "":
+                   new_text += '\n'
+                new_text += paragraph
 
     # print(new_text)
     return new_text
@@ -87,7 +89,9 @@ if __name__ == '__main__' :
     args = parser.parse_args()
 
     if args.fname:
+        html_pages = 0
         for url, html_text in read_warc_file(args.fname, args.num_records):
+            html_pages += 1
             text = html_to_text(html_text)
             cleaned_text = clean_text(text)
             cleaned_nopii_text = replace_pii(cleaned_text)
@@ -97,6 +101,7 @@ if __name__ == '__main__' :
             print("Passes heuristic quality filter:", passes_check)
             print(cleaned_nopii_text)
             print("\n\n\n")
+        print(html_pages)
     else:
         print("Usage: python homework.py --fname data.warc")
         
