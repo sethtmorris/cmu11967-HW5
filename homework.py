@@ -50,7 +50,7 @@ def clean_text(text: str) -> str:
 
     new_text = ""
     for paragraph in text.splitlines():
-        print(paragraph)
+        # print(paragraph)
         if not re.search(r"\.|\?|!", paragraph):
             pass
         elif (len(paragraph) > 100) and (' ' not in paragraph):
@@ -59,9 +59,8 @@ def clean_text(text: str) -> str:
             if new_text != "":
                new_text += '\n'
             new_text += paragraph
-        #if re.match(r"/^[a-zA-Z](.*?)[\.|\?|!]\$", line):
-            #new_text = '\n'.join(line)
-    print(new_text)
+
+    # print(new_text)
     return new_text
 
 def heuristic_quality_filter(text: str) -> bool:
@@ -71,10 +70,14 @@ def heuristic_quality_filter(text: str) -> bool:
     Returns:
         bool: returns True if the document passes the four filters, False otherwise.
     """
-    pass
-        
-    
-
+    bad_word_set = retrieve_bad_words()
+    bad_word_pattern = '|'.join(re.escape(s) for s in bad_word_set)
+    if re.search(r"\S", text):
+        if re.search(r"\.|\?|!", text):
+            if len(re.findall(r"[a-zA-Z]|\d|\.|\?|!|\s", text)) >= 0.8 * len(text):
+                if not bool(re.search(bad_word_pattern, text.lower())):
+                    return True
+    return False
 
 if __name__ == '__main__' :
     parser = argparse.ArgumentParser()
