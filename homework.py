@@ -5,7 +5,7 @@ import json
 from utils import  read_warc_file, retrieve_bad_words
 from datasets import load_dataset
 from typing import Set, Dict
-
+from bs4 import BeautifulSoup
 # you might need to import other modules depending on your implementation
 
 def retrieve_bad_words() -> set[str]:
@@ -25,7 +25,8 @@ def html_to_text(html: str) -> str:
     Returns:
         str: Plain text extracted from HTML.
     """
-    pass
+    soup = BeautifulSoup(html, 'html.parser')
+    return soup
 
 def replace_pii(text: str) -> str:
     """Masks personally identifiable information (PII) from text with the specified masking formats.
@@ -34,7 +35,10 @@ def replace_pii(text: str) -> str:
     Returns:
         str: Text with PII obfuscated.
     """
-    pass
+    cleaned_of_ssn = re.sub('\d\d\d-\d\d-\d\d\d\d', 'XXX-XX-XXXX', text)
+    cleaned_of_phone_number = re.sub('\+1 ?\d{10}', '+1 XXXXXXXXXX', cleaned_of_ssn)
+    print(cleaned_of_phone_number)
+    return cleaned_of_phone_number
 
 def clean_text(text: str) -> str:
     """Removes substrings identified as low-quality according to alphanumeric, whitespace and valid document checks.  
@@ -43,7 +47,22 @@ def clean_text(text: str) -> str:
     Returns:
         str: cleaned document
     """
-    pass
+
+    new_text = ""
+    for paragraph in text.splitlines():
+        print(paragraph)
+        if not re.search(r"\.|\?|!", paragraph):
+            pass
+        elif (len(paragraph) > 100) and (' ' not in paragraph):
+            pass
+        else:
+            if new_text != "":
+               new_text += '\n'
+            new_text += paragraph
+        #if re.match(r"/^[a-zA-Z](.*?)[\.|\?|!]\$", line):
+            #new_text = '\n'.join(line)
+    print(new_text)
+    return new_text
 
 def heuristic_quality_filter(text: str) -> bool:
     """Rejects documents based on the rules.
