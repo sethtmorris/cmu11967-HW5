@@ -5,6 +5,7 @@ import json
 from utils import  read_warc_file, retrieve_bad_words
 from datasets import load_dataset
 from typing import Set, Dict
+import string
 from bs4 import BeautifulSoup
 # you might need to import other modules depending on your implementation
 
@@ -51,7 +52,7 @@ def clean_text(text: str) -> str:
     new_text = ""
     for paragraph in text.splitlines():
         # print(paragraph)
-        if not re.search(r"\.|\?|!", paragraph):
+        if not re.search(f"[{re.escape(string.punctuation)}]", paragraph): #r"\.|\?|!", paragraph):
             pass
         elif (len(paragraph) > 100) and (' ' not in paragraph):
             pass
@@ -73,8 +74,8 @@ def heuristic_quality_filter(text: str) -> bool:
     bad_word_set = retrieve_bad_words()
     bad_word_pattern = '|'.join(re.escape(s) for s in bad_word_set)
     if re.search(r"\S", text):
-        if re.search(r"\.|\?|!", text):
-            if len(re.findall(r"[a-zA-Z]|\d|\.|\?|!|\s", text)) >= 0.8 * len(text):
+        if re.search(f"[{re.escape(string.punctuation)}]", text):
+            if len(re.findall(r"[a-zA-Z]|\d|[{re.escape(string.punctuation)}]|\s", text)) >= 0.8 * len(text):
                 if not bool(re.search(bad_word_pattern, text.lower())):
                     return True
     return False
